@@ -30,14 +30,42 @@ All colors MUST be HSL.
     --muted: 0 0% 94%;
     --muted-foreground: 0 0% 45%;
 
-    /* Modern brand colors - More subtle and professional */
-    --accent: 220 14% 16%;
+    /* Modern brand colors - Professional but vibrant options */
+    --accent: 217 91% 60%; /* Vibrant Blue - trustworthy & energetic */
     --accent-foreground: 0 0% 98%;
-    --accent-light: 220 14% 26%;
-    --accent-dark: 220 14% 12%;
+    --accent-light: 217 91% 70%;
+    --accent-dark: 217 91% 50%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+
+    /* Alternative accent colors - uncomment one to try:
+    
+    /* Forest Green - Premium & sophisticated 
+    --accent: 158 64% 52%;
+    --accent-light: 158 64% 62%;
+    --accent-dark: 158 64% 42%;
+    
+    /* Warm Orange - Energetic & modern
+    --accent: 25 95% 53%;
+    --accent-light: 25 95% 63%;
+    --accent-dark: 25 95% 43%;
+    
+    /* Deep Purple - Luxurious & trendy
+    --accent: 262 83% 58%;
+    --accent-light: 262 83% 68%;
+    --accent-dark: 262 83% 48%;
+    
+    /* Burgundy Red - Sophisticated & bold
+    --accent: 0 59% 41%;
+    --accent-light: 0 59% 51%;
+    --accent-dark: 0 59% 31%;
+    
+    /* Teal - Modern & fresh
+    --accent: 174 72% 56%;
+    --accent-light: 174 72% 66%;
+    --accent-dark: 174 72% 46%;
+    */
 
     /* Minimal professional colors */
     --brand-orange: 25 80% 50%;
