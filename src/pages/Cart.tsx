@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { convertZarToUsd, formatCurrency } from "@/lib/currency";
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, getRawCartItems } = useCart();
@@ -20,6 +21,9 @@ const Cart = () => {
   const subtotal = getTotalPrice();
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + tax;
+  
+  // Currency conversion
+  const totalUSD = convertZarToUsd(total);
 
   const handleCheckout = async () => {
     if (!user) {
@@ -174,9 +178,16 @@ const Cart = () => {
                       </div>
                       <div className="border-t pt-2">
                         <div className="flex justify-between font-semibold text-lg">
-                          <span>Total</span>
+                          <span>Total (ZAR)</span>
                           <span>R{total.toFixed(2)}</span>
                         </div>
+                        <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                          <span>Total (USD)</span>
+                          <span>{formatCurrency(totalUSD, 'USD')}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          *Payment will be processed in USD
+                        </p>
                       </div>
                     </div>
 

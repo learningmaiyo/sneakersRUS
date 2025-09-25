@@ -7,6 +7,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Currency conversion constants (should match your frontend)
+const ZAR_TO_USD_RATE = 0.055;
+
 interface CartItem {
   id: string;
   product_id: string;
@@ -89,6 +92,14 @@ serve(async (req) => {
 
     console.log(`Total amount: $${totalAmount}`);
 
+    // Convert ZAR to USD
+    const totalAmountUSD = totalAmount * ZAR_TO_USD_RATE;
+    const totalAmountCents = Math.round(totalAmountUSD * 100); // Convert to cents
+    
+    console.log(`Total amount in ZAR: R${totalAmount}`);
+    console.log(`Total amount in USD: $${totalAmountUSD.toFixed(2)}`);
+    console.log(`Total amount in cents: ${totalAmountCents}`);
+
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -144,9 +155,9 @@ serve(async (req) => {
             currency: 'usd',
             product_data: {
               name: `Order #${orderData.id.slice(0, 8)}`,
-              description: `${cartItems.length} items from your cart`,
+              description: `${cartItems.length} items from your cart (R${totalAmount.toFixed(2)} ZAR)`,
             },
-            unit_amount: Math.round(totalAmount * 100), // Convert to cents
+            unit_amount: totalAmountCents,
           },
           quantity: 1,
         },
@@ -157,6 +168,7 @@ serve(async (req) => {
       metadata: {
         order_id: orderData.id,
         user_id: user.id,
+        original_amount_zar: totalAmount.toString(),
       },
     });
 
