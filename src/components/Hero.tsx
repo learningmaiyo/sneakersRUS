@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAdminStats } from "@/hooks/useAdminStats";
+import { useProducts } from "@/hooks/useProducts";
 import heroImage1 from "@/assets/hero-shoe-1.jpg";
 import heroImage2 from "@/assets/hero-shoe-2.jpg";
 import heroImage3 from "@/assets/hero-shoe-3.jpg";
 
 const Hero = () => {
+  const { stats } = useAdminStats();
+  const { products } = useProducts();
+  
+  // Calculate unique brands count
+  const uniqueBrands = [...new Set(products.map(product => product.brand))].length;
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Animated Background Images */}
@@ -86,11 +93,11 @@ const Hero = () => {
         {/* Stats Section */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
           <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-1">1000+</div>
+            <div className="text-3xl font-bold text-white mb-1">{stats.totalProducts > 0 ? `${stats.totalProducts}+` : '0'}</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Products</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-1">50+</div>
+            <div className="text-3xl font-bold text-white mb-1">{uniqueBrands > 0 ? `${uniqueBrands}+` : '0'}</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Brands</div>
           </div>
           <div className="text-center">
