@@ -1,14 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Zap } from "lucide-react";
-import heroImage from "@/assets/hero-sneakers.jpg";
+import heroImage1 from "@/assets/hero-shoe-1.jpg";
+import heroImage2 from "@/assets/hero-shoe-2.jpg";
+import heroImage3 from "@/assets/hero-shoe-3.jpg";
 
 const Hero = () => {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Enhanced Overlay */}
+      {/* Animated Background Images */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-[10s] hover:scale-110"
-        style={{ backgroundImage: `url(${heroImage})` }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-[10s] hover:scale-110 hero-bg-animation"
+        style={{ backgroundImage: `url(${heroImage1})` }}
+      />
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-[10s] hover:scale-110 hero-bg-animation opacity-0"
+        style={{ backgroundImage: `url(${heroImage2})` }}
+      />
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-[10s] hover:scale-110 hero-bg-animation opacity-0"
+        style={{ backgroundImage: `url(${heroImage3})` }}
       />
       
       {/* Multiple Gradient Overlays for Depth - More subtle */}
