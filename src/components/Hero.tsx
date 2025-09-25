@@ -21,9 +21,9 @@ const Hero = () => {
         style={{ backgroundImage: `url(${heroImage3})` }}
       />
       
-      {/* Multiple Gradient Overlays for Depth - More subtle */}
-      <div className="absolute inset-0 bg-gradient-hero opacity-70" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+      {/* Multiple Gradient Overlays for Depth - Much lighter */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
       
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 text-white/20 float-animation">
