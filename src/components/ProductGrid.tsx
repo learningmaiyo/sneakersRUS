@@ -152,10 +152,10 @@ const ProductGrid = ({ showFeaturedOnly = false, maxItems }: ProductGridProps) =
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-accent">${product.price}</span>
+                    <span className="text-2xl font-bold text-accent">R{product.price}</span>
                     {product.original_price && (
                       <span className="text-sm text-muted-foreground line-through bg-muted px-2 py-1 rounded">
-                        ${product.original_price}
+                        R{product.original_price}
                       </span>
                     )}
                   </div>

@@ -83,10 +83,10 @@ const Wishlist = () => {
                             <p className="text-sm text-muted-foreground">{product.brand}</p>
                             <h3 className="text-xl font-semibold">{product.name}</h3>
                             <div className="flex items-center gap-2 mt-2">
-                              <p className="text-2xl font-bold text-accent">${product.price}</p>
+                              <p className="text-2xl font-bold text-accent">R{product.price}</p>
                               {product.original_price && (
                                 <span className="text-sm text-muted-foreground line-through">
-                                  ${product.original_price}
+                                  R{product.original_price}
                                 </span>
                               )}
                             </div>

@@ -150,10 +150,10 @@ const ProductDetail = () => {
                 </div>
                 <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="text-3xl font-bold text-accent">${product.price}</span>
+                  <span className="text-3xl font-bold text-accent">R{product.price}</span>
                   {product.original_price && (
                     <span className="text-xl text-muted-foreground line-through">
-                      ${product.original_price}
+                      R{product.original_price}
                     </span>
                   )}
                 </div>
