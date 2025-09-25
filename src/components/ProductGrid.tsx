@@ -55,10 +55,10 @@ const ProductGrid = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gradient">Featured Collection</h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Featured Collection</h2>
           <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
             Discover our handpicked selection of premium sneakers from the world's top brands
-            <span className="block mt-2 text-accent font-medium">✨ Curated for Style & Performance</span>
+            <span className="block mt-2 text-accent font-medium">Curated for Style & Performance</span>
           </p>
         </div>
 
@@ -75,13 +75,13 @@ const ProductGrid = () => {
                 {/* Enhanced Badges */}
                 <div className="absolute top-3 left-3 flex gap-2">
                   {product.is_new && (
-                    <Badge className="bg-gradient-premium text-white shadow-glow animate-pulse-slow font-medium">
-                      ✨ New
+                    <Badge className="bg-accent text-accent-foreground shadow-card font-medium">
+                      New
                     </Badge>
                   )}
                   {product.original_price && (
-                    <Badge variant="destructive" className="shadow-md animate-bounce-in font-medium">
-                      🔥 Sale
+                    <Badge variant="destructive" className="shadow-md font-medium">
+                      Sale
                     </Badge>
                   )}
                 </div>
@@ -104,10 +104,9 @@ const ProductGrid = () => {
                   </Button>
                 </div>
 
-                {/* Enhanced Add to Cart Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
                   <Button 
-                    className="w-full btn-glow bg-gradient-accent hover:bg-gradient-premium border-0 shadow-glow hover:shadow-premium transition-all duration-300 font-medium" 
+                    className="w-full bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-300 font-medium" 
                     disabled={!product.in_stock}
                     onClick={() => addToCart(product.id)}
                   >
@@ -154,8 +153,7 @@ const ProductGrid = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="btn-glow border-accent/30 hover:border-accent hover:bg-accent/5 hover:text-accent transition-all duration-300 font-medium px-8 py-3">
-            <span className="mr-2">✨</span>
+          <Button variant="outline" size="lg" className="border-accent/30 hover:border-accent hover:bg-accent/5 hover:text-accent transition-all duration-300 font-medium px-8 py-3">
             View All Products
           </Button>
         </div>

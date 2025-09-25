@@ -11,9 +11,9 @@ const Hero = () => {
         style={{ backgroundImage: `url(${heroImage})` }}
       />
       
-      {/* Multiple Gradient Overlays for Depth */}
-      <div className="absolute inset-0 bg-gradient-hero opacity-90" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+      {/* Multiple Gradient Overlays for Depth - More subtle */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
       
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 text-white/20 float-animation">
@@ -29,14 +29,14 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-4 animate-fade-in">
         <div className="mb-6">
-          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium mb-6 animate-bounce-in">
-            ✨ New Collection Available
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium mb-6">
+            New Collection Available
           </span>
         </div>
         
         <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-8 leading-none">
           <span className="block animate-slide-up">Step Into</span>
-          <span className="block text-gradient animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <span className="block text-white animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Premium Style
           </span>
         </h1>
@@ -51,9 +51,8 @@ const Hero = () => {
         <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <Button 
             size="lg" 
-            className="text-lg px-10 py-6 bg-gradient-accent hover:bg-gradient-premium border-0 shadow-glow hover:shadow-premium transition-all duration-500 font-semibold group btn-glow"
+            className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group"
           >
-            <span className="mr-2">🛒</span>
             Shop Collection
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
@@ -62,7 +61,6 @@ const Hero = () => {
             variant="outline" 
             className="text-lg px-10 py-6 glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all duration-500 font-semibold group"
           >
-            <span className="mr-2">⚡</span>
             New Arrivals
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
@@ -71,19 +69,19 @@ const Hero = () => {
         {/* Stats Section */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
           <div className="text-center">
-            <div className="text-3xl font-bold text-gradient mb-1">1000+</div>
+            <div className="text-3xl font-bold text-white mb-1">1000+</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Products</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-gradient mb-1">50+</div>
+            <div className="text-3xl font-bold text-white mb-1">50+</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Brands</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-gradient mb-1">24/7</div>
+            <div className="text-3xl font-bold text-white mb-1">24/7</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Support</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-gradient mb-1">Free</div>
+            <div className="text-3xl font-bold text-white mb-1">Free</div>
             <div className="text-white/70 text-sm uppercase tracking-wide">Shipping</div>
           </div>
         </div>

@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-t from-primary via-primary/95 to-primary/90 text-primary-foreground relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-10">
-        <div className="absolute top-10 right-10 w-64 h-64 bg-gradient-accent rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-10 left-10 w-48 h-48 bg-gradient-premium rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '3s' }}></div>
+    <footer className="bg-primary text-primary-foreground relative overflow-hidden">
+      {/* Background Elements - More subtle */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-5">
+        <div className="absolute top-10 right-10 w-64 h-64 bg-accent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 left-10 w-48 h-48 bg-accent-light rounded-full blur-3xl"></div>
       </div>
 
       <div className="container mx-auto px-4 py-16 relative z-10">
@@ -16,7 +16,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-gradient mb-4">SneakersRUS</h3>
+              <h3 className="text-3xl font-bold mb-4">SneakersRUS</h3>
               <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-md">
                 Your premium destination for authentic sneakers from the world's top brands. 
                 <span className="block mt-2 font-medium text-primary-foreground">
@@ -39,7 +39,7 @@ const Footer = () => {
                   placeholder="Enter your email" 
                   className="flex-1 bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50"
                 />
-                <Button className="bg-gradient-accent hover:bg-gradient-premium border-0 shadow-glow font-medium">
+                <Button className="bg-accent hover:bg-accent-dark border-0 shadow-card font-medium">
                   Subscribe
                 </Button>
               </div>
