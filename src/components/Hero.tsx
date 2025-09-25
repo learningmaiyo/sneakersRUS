@@ -1,43 +1,98 @@
 import { Button } from "@/components/ui/button";
+import { ArrowRight, Star, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-sneakers.jpg";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* Background Image with Enhanced Overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-[10s] hover:scale-110"
         style={{ backgroundImage: `url(${heroImage})` }}
       />
       
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/60" />
+      {/* Multiple Gradient Overlays for Depth */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+      
+      {/* Floating Elements */}
+      <div className="absolute top-20 left-10 text-white/20 float-animation">
+        <Star className="h-8 w-8" />
+      </div>
+      <div className="absolute top-40 right-20 text-white/20 float-animation" style={{ animationDelay: '2s' }}>
+        <Zap className="h-6 w-6" />
+      </div>
+      <div className="absolute bottom-40 left-20 text-white/20 float-animation" style={{ animationDelay: '4s' }}>
+        <Star className="h-10 w-10" />
+      </div>
       
       {/* Content */}
-      <div className="relative z-10 text-center text-primary-foreground max-w-4xl mx-auto px-4">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-          Step Into
-          <span className="block bg-gradient-accent bg-clip-text text-transparent">
+      <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-4 animate-fade-in">
+        <div className="mb-6">
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium mb-6 animate-bounce-in">
+            ✨ New Collection Available
+          </span>
+        </div>
+        
+        <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-8 leading-none">
+          <span className="block animate-slide-up">Step Into</span>
+          <span className="block text-gradient animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Premium Style
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl lg:text-3xl mb-12 text-white/90 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.4s' }}>
           Discover the latest collection of premium sneakers from top brands. 
-          Elevate your style with authentic, quality footwear.
+          <span className="block mt-2 font-medium text-white">
+            Elevate your style with authentic, quality footwear.
+          </span>
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <Button 
+            size="lg" 
+            className="text-lg px-10 py-6 bg-gradient-accent hover:bg-gradient-premium border-0 shadow-glow hover:shadow-premium transition-all duration-500 font-semibold group btn-glow"
+          >
+            <span className="mr-2">🛒</span>
             Shop Collection
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
           <Button 
             size="lg" 
             variant="outline" 
-            className="text-lg px-8 py-6 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary bg-transparent"
+            className="text-lg px-10 py-6 glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all duration-500 font-semibold group"
           >
+            <span className="mr-2">⚡</span>
             New Arrivals
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
+        </div>
+
+        {/* Stats Section */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gradient mb-1">1000+</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Products</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gradient mb-1">50+</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Brands</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gradient mb-1">24/7</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Support</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gradient mb-1">Free</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Shipping</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse"></div>
         </div>
       </div>
     </section>

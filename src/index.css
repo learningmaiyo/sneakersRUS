@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SneakersRUS Design System - Premium sneaker retail aesthetic
+/* SneakersRUS Design System - Premium sneaker retail aesthetic with modern enhancements
 All colors MUST be HSL.
 */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -29,11 +31,19 @@ All colors MUST be HSL.
     --muted-foreground: 0 0% 45%;
 
     /* Vibrant sneaker accent colors */
-    --accent: 142 71% 45%;
+    --accent: 262 83% 58%;
     --accent-foreground: 0 0% 98%;
+    --accent-light: 262 83% 68%;
+    --accent-dark: 262 83% 48%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+
+    /* Modern brand colors */
+    --brand-orange: 25 95% 53%;
+    --brand-blue: 217 91% 60%;
+    --brand-purple: 262 83% 58%;
+    --brand-green: 142 71% 45%;
 
     /* Borders and inputs */
     --border: 0 0% 90%;
@@ -43,18 +53,25 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     /* Premium sneaker-inspired gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 50%, hsl(25 95% 53%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(142 71% 35%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-light)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(262 83% 48%) 100%);
+    --gradient-rainbow: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 25%, hsl(142 71% 45%) 50%, hsl(25 95% 53%) 75%, hsl(0 84% 60%) 100%);
 
-    /* Elegant shadows */
-    --shadow-product: 0 4px 20px -4px hsl(var(--foreground) / 0.1);
-    --shadow-card: 0 2px 10px -2px hsl(var(--foreground) / 0.08);
-    --shadow-glow: 0 0 40px hsl(var(--accent) / 0.2);
+    /* Enhanced shadows with depth */
+    --shadow-product: 0 10px 40px -8px hsl(var(--foreground) / 0.15), 0 4px 12px -4px hsl(var(--accent) / 0.1);
+    --shadow-card: 0 4px 20px -4px hsl(var(--foreground) / 0.1);
+    --shadow-glow: 0 0 60px hsl(var(--accent) / 0.3);
+    --shadow-premium: 0 20px 60px -12px hsl(var(--accent) / 0.25);
+    --shadow-hover: 0 15px 50px -10px hsl(var(--accent) / 0.2);
 
-    /* Smooth animations */
+    /* Advanced animations */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -118,6 +135,90 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+}
+
+@layer components {
+  /* Enhanced Interactive Elements */
+  .btn-glow {
+    @apply relative overflow-hidden;
+  }
+
+  .btn-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] transition-transform duration-700;
+  }
+
+  .btn-glow:hover::before {
+    @apply translate-x-[100%];
+  }
+
+  /* Product Card Enhancements */
+  .product-card {
+    @apply transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  .product-card-glow {
+    @apply relative;
+  }
+
+  .product-card-glow::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-orange-500/10 opacity-0 transition-opacity duration-300 rounded-lg;
+  }
+
+  .product-card-glow:hover::after {
+    @apply opacity-100;
+  }
+
+  /* Floating Animation */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Shimmer Effect */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .shimmer::before {
+    content: '';
+    @apply absolute top-0 -left-full h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform skew-x-12;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) skewX(-12deg); }
+    100% { transform: translateX(200%) skewX(-12deg); }
+  }
+
+  /* Text Gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-600 via-blue-600 to-orange-600 bg-clip-text text-transparent;
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  /* Pulse Glow */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-glow {
+    from { box-shadow: 0 0 20px hsl(var(--accent) / 0.3); }
+    to { box-shadow: 0 0 40px hsl(var(--accent) / 0.6); }
   }
 }
