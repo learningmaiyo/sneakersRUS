@@ -31,10 +31,10 @@ All colors MUST be HSL.
     --muted-foreground: 0 0% 45%;
 
     /* Modern brand colors - Professional but vibrant options */
-    --accent: 158 64% 52%; /* Vibrant Blue - trustworthy & energetic */
+    --accent: 25 95% 53%; /* Vibrant Blue - trustworthy & energetic */
     --accent-foreground: 0 0% 98%;
-    --accent-light: 158 64% 62%;
-    --accent-dark: 158 64% 42%;
+    --accent-light: 25 95% 63%;
+    --accent-dark: 25 95% 43%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
