@@ -42,7 +42,7 @@ const Hero = () => {
               Elevate your style with authentic, quality footwear.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Button size="lg" className="bg-accent hover:bg-accent-dark px-10 py-6 text-lg" asChild>
                 <Link to="/products">
                   Shop Collection <ArrowRight className="ml-2 h-5 w-5" />
@@ -52,35 +52,33 @@ const Hero = () => {
                 <Link to="/products">New Arrivals</Link>
               </Button>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Bottom Stats - Fixed at bottom with proper spacing */}
-      <div className="relative z-10 pb-16">
-        <div className="bg-black/50 backdrop-blur-md rounded-2xl mx-4 lg:mx-8 p-6 shadow-2xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">
-                {loading ? '...' : (totalProducts > 0 ? `${totalProducts}+` : '16+')}
+
+            {/* Stats Section - Moved below buttons */}
+            <div className="border-t border-white/20 pt-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+                <div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {loading ? '...' : (totalProducts > 0 ? `${totalProducts}+` : '16+')}
+                  </div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {loading ? '...' : (totalBrands > 0 ? `${totalBrands}+` : '5+')}
+                  </div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {loading ? '...' : (inStockProducts > 0 ? inStockProducts : '14')}
+                  </div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">In Stock</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white mb-1">Free</div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Shipping</div>
+                </div>
               </div>
-              <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">
-                {loading ? '...' : (totalBrands > 0 ? `${totalBrands}+` : '5+')}
-              </div>
-              <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">
-                {loading ? '...' : (inStockProducts > 0 ? inStockProducts : '14')}
-              </div>
-              <div className="text-white/80 text-sm uppercase tracking-wide">In Stock</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">Free</div>
-              <div className="text-white/80 text-sm uppercase tracking-wide">Shipping</div>
             </div>
           </div>
         </div>
