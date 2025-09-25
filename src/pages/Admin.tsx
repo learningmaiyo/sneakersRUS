@@ -11,12 +11,16 @@ import { useAdminStats } from "@/hooks/useAdminStats";
 import { useProducts } from "@/hooks/useProducts";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { ProductEditDialog } from "@/components/ProductEditDialog";
+import { Product } from "@/hooks/useProducts";
 
 const Admin = () => {
   const { stats, loading: statsLoading } = useAdminStats();
   const { products, loading: productsLoading, refetch: refetchProducts } = useProducts();
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   // Fetch users for user management
   useEffect(() => {
@@ -60,6 +64,11 @@ const Admin = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setEditDialogOpen(true);
   };
 
   return (
@@ -245,7 +254,12 @@ const Admin = () => {
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex items-center gap-2 justify-end">
-                                    <Button variant="ghost" size="sm" className="gap-1">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="gap-1"
+                                      onClick={() => handleEditProduct(product)}
+                                    >
                                       <Pencil className="h-3 w-3" />
                                       Edit
                                     </Button>
@@ -384,6 +398,13 @@ const Admin = () => {
           </div>
         </main>
         <Footer />
+        
+        <ProductEditDialog
+          product={editingProduct}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onProductUpdated={refetchProducts}
+        />
       </div>
     </AdminProtectedRoute>
   );
