@@ -11,7 +11,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Base colors - Clean whites and deep blacks */
-    --background: 0 0% 98%;
+    --background: 0 0% 100%;
     --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
@@ -32,7 +32,7 @@ All colors MUST be HSL.
 
     /* Modern brand colors - Professional but vibrant options */
     --accent: 25 95% 53%; /* Vibrant Blue - trustworthy & energetic */
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 0 0% 98%;
     --accent-light: 25 95% 63%;
     --accent-dark: 25 95% 43%;
 
