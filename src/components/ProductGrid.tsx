@@ -13,6 +13,10 @@ const ProductGrid = () => {
   const { wishlistItems, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
 
+  const handleAddToCart = (productId: string, size?: string) => {
+    addToCart(productId, size);
+  };
+
   if (loading) {
     return (
       <section className="py-20 bg-gradient-subtle relative overflow-hidden">
@@ -67,11 +71,13 @@ const ProductGrid = () => {
           {products.map((product) => (
             <Card key={product.id} className="product-card product-card-glow group overflow-hidden shadow-product hover:shadow-hover transition-all duration-500">
               <div className="relative overflow-hidden">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-64 object-cover transition-all duration-500 group-hover:scale-110"
-                />
+                <Link to={`/product/${product.id}`} className="block">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-64 object-cover transition-all duration-500 group-hover:scale-110"
+                  />
+                </Link>
                 
                 {/* Enhanced Badges */}
                 <div className="absolute top-3 left-3 flex gap-2">
@@ -109,7 +115,7 @@ const ProductGrid = () => {
                   <Button 
                     className="w-full bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-300 font-medium" 
                     disabled={!product.in_stock}
-                    onClick={() => addToCart(product.id)}
+                    onClick={() => handleAddToCart(product.id)}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
@@ -127,10 +133,12 @@ const ProductGrid = () => {
               </div>
 
               <CardContent className="p-6 bg-gradient-card">
-                <div className="mb-3">
-                  <p className="text-sm text-muted-foreground font-medium tracking-wide uppercase">{product.brand}</p>
-                  <h3 className="font-semibold text-lg text-foreground group-hover:text-accent transition-colors duration-300 line-clamp-2">{product.name}</h3>
-                </div>
+                <Link to={`/product/${product.id}`} className="block">
+                  <div className="mb-3">
+                    <p className="text-sm text-muted-foreground font-medium tracking-wide uppercase">{product.brand}</p>
+                    <h3 className="font-semibold text-lg text-foreground group-hover:text-accent transition-colors duration-300 line-clamp-2">{product.name}</h3>
+                  </div>
+                </Link>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
