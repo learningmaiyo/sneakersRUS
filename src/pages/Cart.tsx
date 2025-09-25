@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
@@ -29,7 +30,9 @@ const Cart = () => {
               <ShoppingCart className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
               <p className="text-muted-foreground mb-6">Add some sneakers to get started</p>
-              <Button>Continue Shopping</Button>
+              <Button asChild>
+                <Link to="/products">Continue Shopping</Link>
+              </Button>
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
@@ -125,8 +128,8 @@ const Cart = () => {
                       Proceed to Checkout
                     </Button>
 
-                    <Button variant="outline" className="w-full">
-                      Continue Shopping
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/products">Continue Shopping</Link>
                     </Button>
                   </CardContent>
                 </Card>
