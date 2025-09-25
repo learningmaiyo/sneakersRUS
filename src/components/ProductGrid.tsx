@@ -8,8 +8,18 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { Link } from "react-router-dom";
 
-const ProductGrid = () => {
+interface ProductGridProps {
+  showFeaturedOnly?: boolean;
+  maxItems?: number;
+}
+
+const ProductGrid = ({ showFeaturedOnly = false, maxItems }: ProductGridProps) => {
   const { products, loading } = useProducts();
+
+  // Filter products based on props
+  const filteredProducts = products
+    .filter(product => showFeaturedOnly ? (product as any).featured : true)
+    .slice(0, maxItems);
   const { wishlistItems, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
 
@@ -68,7 +78,7 @@ const ProductGrid = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <Card key={product.id} className="product-card product-card-glow group overflow-hidden shadow-product hover:shadow-hover transition-all duration-500">
               <div className="relative overflow-hidden">
                 <Link to={`/product/${product.id}`} className="block">

@@ -9,7 +9,7 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <Hero />
-        <ProductGrid />
+        <ProductGrid showFeaturedOnly={true} maxItems={8} />
       </main>
       <Footer />
     </div>
