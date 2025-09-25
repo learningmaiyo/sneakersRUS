@@ -31,7 +31,11 @@ const Hero = () => {
           <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
             Shop Collection
           </Button>
-          <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="text-lg px-8 py-6 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary bg-transparent"
+          >
             New Arrivals
           </Button>
         </div>
