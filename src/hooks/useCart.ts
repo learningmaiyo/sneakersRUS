@@ -20,10 +20,54 @@ export interface CartItem {
   };
 }
 
+export interface AggregatedCartItem {
+  product_id: string;
+  size?: string;
+  quantity: number;
+  products: {
+    name: string;
+    brand: string;
+    price: number;
+    image_url: string;
+    in_stock: boolean;
+  };
+  // Keep track of database IDs for operations
+  item_ids: string[];
+}
+
 export function useCart() {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Function to aggregate cart items
+  const aggregateCartItems = (items: CartItem[]): AggregatedCartItem[] => {
+    const aggregated = new Map<string, AggregatedCartItem>();
+
+    items.forEach(item => {
+      // Create a unique key based on product_id, size, and other attributes
+      const key = `${item.product_id}-${item.size || 'no-size'}`;
+      
+      if (aggregated.has(key)) {
+        const existing = aggregated.get(key)!;
+        existing.quantity += item.quantity;
+        existing.item_ids.push(item.id);
+      } else {
+        aggregated.set(key, {
+          product_id: item.product_id,
+          size: item.size,
+          quantity: item.quantity,
+          products: item.products,
+          item_ids: [item.id]
+        });
+      }
+    });
+
+    return Array.from(aggregated.values());
+  };
+
+  // Get aggregated cart items
+  const aggregatedCartItems = aggregateCartItems(cartItems);
 
   const fetchCart = async () => {
     if (!user) {
@@ -71,13 +115,19 @@ export function useCart() {
     }
 
     try {
-      // Check if item already exists in cart
-      const existingItem = cartItems.find(
-        item => item.product_id === productId && item.size === size
-      );
+      // First fetch fresh data to ensure we have the latest cart state
+      const { data: currentCartItems, error: fetchError } = await supabase
+        .from('cart_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .eq('size', size || null);
 
-      if (existingItem) {
-        // Update quantity
+      if (fetchError) throw fetchError;
+
+      if (currentCartItems && currentCartItems.length > 0) {
+        // Update existing item (take the first one if multiple exist)
+        const existingItem = currentCartItems[0];
         const { error } = await supabase
           .from('cart_items')
           .update({ quantity: existingItem.quantity + quantity })
@@ -112,17 +162,35 @@ export function useCart() {
     }
   };
 
-  const updateQuantity = async (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      await removeFromCart(itemId);
+  const updateQuantity = async (productId: string, size: string | undefined, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      await removeFromCart(productId, size);
       return;
     }
 
     try {
+      // Find the aggregated item
+      const aggregatedItem = aggregatedCartItems.find(
+        item => item.product_id === productId && item.size === size
+      );
+
+      if (!aggregatedItem) return;
+
+      // If we have multiple database entries for the same item, merge them into one
+      if (aggregatedItem.item_ids.length > 1) {
+        // Delete all but the first entry
+        const idsToDelete = aggregatedItem.item_ids.slice(1);
+        await supabase
+          .from('cart_items')
+          .delete()
+          .in('id', idsToDelete);
+      }
+
+      // Update the first (or only) entry with the new quantity
       const { error } = await supabase
         .from('cart_items')
-        .update({ quantity })
-        .eq('id', itemId);
+        .update({ quantity: newQuantity })
+        .eq('id', aggregatedItem.item_ids[0]);
 
       if (error) throw error;
       await fetchCart();
@@ -135,15 +203,28 @@ export function useCart() {
     }
   };
 
-  const removeFromCart = async (itemId: string) => {
+  const removeFromCart = async (productId: string, size?: string) => {
     try {
+      // Find all database entries for this product/size combination
+      const aggregatedItem = aggregatedCartItems.find(
+        item => item.product_id === productId && item.size === size
+      );
+
+      if (!aggregatedItem) return;
+
+      // Delete all database entries for this aggregated item
       const { error } = await supabase
         .from('cart_items')
         .delete()
-        .eq('id', itemId);
+        .in('id', aggregatedItem.item_ids);
 
       if (error) throw error;
-      setCartItems(prev => prev.filter(item => item.id !== itemId));
+      
+      // Update local state
+      setCartItems(prev => prev.filter(item => 
+        !(item.product_id === productId && item.size === size)
+      ));
+      
       toast({
         title: "Removed from cart",
         description: "Item has been removed from your cart"
@@ -158,21 +239,26 @@ export function useCart() {
   };
 
   const getTotalItems = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+    return aggregatedCartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.products.price * item.quantity), 0);
+    return aggregatedCartItems.reduce((total, item) => total + (item.products.price * item.quantity), 0);
+  };
+
+  const getRawCartItems = () => {
+    return cartItems; // Return the raw database items for checkout
   };
 
   return {
-    cartItems,
+    cartItems: aggregatedCartItems,
     loading,
     addToCart,
     updateQuantity,
     removeFromCart,
     getTotalItems,
     getTotalPrice,
+    getRawCartItems,
     refetch: fetchCart
   };
 }

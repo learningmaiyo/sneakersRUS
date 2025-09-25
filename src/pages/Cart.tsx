@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, getRawCartItems } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -31,7 +31,8 @@ const Cart = () => {
       return;
     }
 
-    if (cartItems.length === 0) {
+    const rawCartItems = getRawCartItems();
+    if (rawCartItems.length === 0) {
       toast({
         title: "Empty Cart",
         description: "Please add items to your cart before checking out.",
@@ -77,7 +78,7 @@ const Cart = () => {
           <div className="flex items-center gap-2 mb-8">
             <ShoppingCart className="h-6 w-6" />
             <h1 className="text-3xl font-bold">Shopping Cart</h1>
-            <span className="text-muted-foreground">({cartItems.length} items)</span>
+            <span className="text-muted-foreground">({getTotalItems()} items)</span>
           </div>
 
           {cartItems.length === 0 ? (
@@ -94,7 +95,7 @@ const Cart = () => {
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 {cartItems.map((item) => (
-                  <Card key={item.id} className="overflow-hidden">
+                  <Card key={`${item.product_id}-${item.size || 'no-size'}`} className="overflow-hidden">
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
                         <div className="w-full sm:w-32 h-32">
@@ -120,7 +121,7 @@ const Cart = () => {
                                   variant="outline" 
                                   size="icon" 
                                   className="h-8 w-8"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  onClick={() => updateQuantity(item.product_id, item.size, item.quantity - 1)}
                                 >
                                   <Minus className="h-4 w-4" />
                                 </Button>
@@ -133,7 +134,7 @@ const Cart = () => {
                                   variant="outline" 
                                   size="icon" 
                                   className="h-8 w-8"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  onClick={() => updateQuantity(item.product_id, item.size, item.quantity + 1)}
                                 >
                                   <Plus className="h-4 w-4" />
                                 </Button>
@@ -143,7 +144,7 @@ const Cart = () => {
                                 variant="outline" 
                                 size="icon" 
                                 className="text-destructive hover:text-destructive"
-                                onClick={() => removeFromCart(item.id)}
+                                onClick={() => removeFromCart(item.product_id, item.size)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
