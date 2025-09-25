@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          size: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          size?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          size?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand: string
+          category: string | null
+          colors: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          in_stock: boolean | null
+          is_new: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          sizes: string[] | null
+          stock_quantity: number | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          brand: string
+          category?: string | null
+          colors?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          in_stock?: boolean | null
+          is_new?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          sizes?: string[] | null
+          stock_quantity?: number | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          category?: string | null
+          colors?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          in_stock?: boolean | null
+          is_new?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          sizes?: string[] | null
+          stock_quantity?: number | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -73,6 +168,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -1,60 +1,43 @@
-import { useState } from "react";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for demonstration
-const mockProducts = [
-  {
-    id: 1,
-    name: "Air Force Classic",
-    brand: "Nike",
-    price: 129.99,
-    originalPrice: 159.99,
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-    isNew: true,
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Ultraboost 22",
-    brand: "Adidas",
-    price: 189.99,
-    image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=400&fit=crop",
-    isNew: false,
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Chuck Taylor All Star",
-    brand: "Converse",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=400&h=400&fit=crop",
-    isNew: false,
-    inStock: false,
-  },
-  {
-    id: 4,
-    name: "Old Skool Pro",
-    brand: "Vans",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&h=400&fit=crop",
-    isNew: true,
-    inStock: true,
-  },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProducts } from "@/hooks/useProducts";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useCart } from "@/hooks/useCart";
 
 const ProductGrid = () => {
-  const [wishlist, setWishlist] = useState<number[]>([]);
+  const { products, loading } = useProducts();
+  const { wishlistItems, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
-  const toggleWishlist = (productId: number) => {
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Collection</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Discover our handpicked selection of premium sneakers from the world's top brands
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="w-full h-64" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
     );
-  };
+  }
 
   return (
     <section className="py-16 bg-background">
@@ -67,21 +50,21 @@ const ProductGrid = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mockProducts.map((product) => (
+          {products.map((product) => (
             <Card key={product.id} className="group overflow-hidden hover:shadow-product transition-all duration-300">
               <div className="relative overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.image_url}
                   alt={product.name}
                   className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex gap-2">
-                  {product.isNew && (
+                  {product.is_new && (
                     <Badge className="bg-accent text-accent-foreground">New</Badge>
                   )}
-                  {product.originalPrice && (
+                  {product.original_price && (
                     <Badge variant="destructive">Sale</Badge>
                   )}
                 </div>
@@ -96,7 +79,7 @@ const ProductGrid = () => {
                   >
                     <Heart 
                       className={`h-4 w-4 ${
-                        wishlist.includes(product.id) 
+                        wishlistItems.includes(product.id) 
                           ? 'fill-destructive text-destructive' 
                           : 'text-foreground'
                       }`} 
@@ -109,10 +92,11 @@ const ProductGrid = () => {
                   <Button 
                     className="w-full" 
                     variant="secondary"
-                    disabled={!product.inStock}
+                    disabled={!product.in_stock}
+                    onClick={() => addToCart(product.id)}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                    {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
                   </Button>
                 </div>
               </div>
@@ -126,9 +110,9 @@ const ProductGrid = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold">${product.price}</span>
-                    {product.originalPrice && (
+                    {product.original_price && (
                       <span className="text-sm text-muted-foreground line-through">
-                        ${product.originalPrice}
+                        ${product.original_price}
                       </span>
                     )}
                   </div>

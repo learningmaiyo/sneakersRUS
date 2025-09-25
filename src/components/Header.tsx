@@ -3,6 +3,7 @@ import { ShoppingCart, Heart, Search, Menu, X, User, LogOut } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
@@ -10,6 +11,7 @@ export default function Header() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { getTotalItems } = useCart();
   const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
@@ -88,9 +90,11 @@ export default function Header() {
                 <Link to="/cart">
                   <Button variant="ghost" size="icon" className="relative">
                     <ShoppingCart className="h-5 w-5" />
-                    <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      0
-                    </span>
+                    {getTotalItems() > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {getTotalItems()}
+                      </span>
+                    )}
                   </Button>
                 </Link>
                 <div className="hidden md:flex items-center space-x-2">

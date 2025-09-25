@@ -3,28 +3,48 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useCart } from "@/hooks/useCart";
+import { useProducts } from "@/hooks/useProducts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Wishlist = () => {
-  // Mock wishlist data
-  const wishlistItems = [
-    {
-      id: 1,
-      name: "Air Force Classic",
-      brand: "Nike",
-      price: 129.99,
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-      inStock: true,
-    },
-    {
-      id: 2,
-      name: "Ultraboost 22",
-      brand: "Adidas",
-      price: 189.99,
-      image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=400&fit=crop",
-      inStock: false,
-    },
-  ];
+  const { wishlistItems, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const { products, loading } = useProducts();
 
+  const wishlistProducts = products.filter(product => wishlistItems.includes(product.id));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-8">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-2 mb-8">
+              <Heart className="h-6 w-6" />
+              <h1 className="text-3xl font-bold">My Wishlist</h1>
+            </div>
+            <div className="grid gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <div className="flex flex-col sm:flex-row">
+                    <Skeleton className="w-full sm:w-48 h-48 sm:h-32" />
+                    <div className="flex-1 p-6 space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-6 w-32" />
+                      <Skeleton className="h-6 w-20" />
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -33,10 +53,10 @@ const Wishlist = () => {
           <div className="flex items-center gap-2 mb-8">
             <Heart className="h-6 w-6 text-destructive fill-destructive" />
             <h1 className="text-3xl font-bold">My Wishlist</h1>
-            <span className="text-muted-foreground">({wishlistItems.length} items)</span>
+            <span className="text-muted-foreground">({wishlistProducts.length} items)</span>
           </div>
 
-          {wishlistItems.length === 0 ? (
+          {wishlistProducts.length === 0 ? (
             <div className="text-center py-16">
               <Heart className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold mb-2">Your wishlist is empty</h2>
@@ -45,14 +65,14 @@ const Wishlist = () => {
             </div>
           ) : (
             <div className="grid gap-4">
-              {wishlistItems.map((item) => (
-                <Card key={item.id} className="overflow-hidden">
+              {wishlistProducts.map((product) => (
+                <Card key={product.id} className="overflow-hidden">
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       <div className="w-full sm:w-48 h-48 sm:h-32">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={product.image_url}
+                          alt={product.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -60,11 +80,18 @@ const Wishlist = () => {
                       <div className="flex-1 p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                           <div>
-                            <p className="text-sm text-muted-foreground">{item.brand}</p>
-                            <h3 className="text-xl font-semibold">{item.name}</h3>
-                            <p className="text-2xl font-bold text-accent mt-2">${item.price}</p>
-                            <p className={`text-sm mt-1 ${item.inStock ? 'text-accent' : 'text-destructive'}`}>
-                              {item.inStock ? 'In Stock' : 'Out of Stock'}
+                            <p className="text-sm text-muted-foreground">{product.brand}</p>
+                            <h3 className="text-xl font-semibold">{product.name}</h3>
+                            <div className="flex items-center gap-2 mt-2">
+                              <p className="text-2xl font-bold text-accent">${product.price}</p>
+                              {product.original_price && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  ${product.original_price}
+                                </span>
+                              )}
+                            </div>
+                            <p className={`text-sm mt-1 ${product.in_stock ? 'text-accent' : 'text-destructive'}`}>
+                              {product.in_stock ? 'In Stock' : 'Out of Stock'}
                             </p>
                           </div>
                           
@@ -73,10 +100,14 @@ const Wishlist = () => {
                               variant="outline"
                               size="icon"
                               className="text-destructive hover:text-destructive"
+                              onClick={() => toggleWishlist(product.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                            <Button disabled={!item.inStock}>
+                            <Button 
+                              disabled={!product.in_stock}
+                              onClick={() => addToCart(product.id)}
+                            >
                               <ShoppingCart className="h-4 w-4 mr-2" />
                               Add to Cart
                             </Button>
@@ -87,10 +118,6 @@ const Wishlist = () => {
                   </CardContent>
                 </Card>
               ))}
-              
-              <div className="flex justify-center mt-8">
-                <Button variant="outline">Clear Wishlist</Button>
-              </div>
             </div>
           )}
         </div>

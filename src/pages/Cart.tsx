@@ -4,31 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 const Cart = () => {
-  // Mock cart data
-  const cartItems = [
-    {
-      id: 1,
-      name: "Air Force Classic",
-      brand: "Nike",
-      price: 129.99,
-      quantity: 2,
-      size: "10",
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-    },
-    {
-      id: 2,
-      name: "Ultraboost 22",
-      brand: "Adidas",
-      price: 189.99,
-      quantity: 1,
-      size: "9.5",
-      image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=400&fit=crop",
-    },
-  ];
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = getTotalPrice();
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + tax;
 
@@ -60,8 +41,8 @@ const Cart = () => {
                       <div className="flex flex-col sm:flex-row">
                         <div className="w-full sm:w-32 h-32">
                           <img
-                            src={item.image}
-                            alt={item.name}
+                            src={item.products.image_url}
+                            alt={item.products.name}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -69,15 +50,20 @@ const Cart = () => {
                         <div className="flex-1 p-6">
                           <div className="flex flex-col sm:flex-row justify-between gap-4">
                             <div>
-                              <p className="text-sm text-muted-foreground">{item.brand}</p>
-                              <h3 className="text-lg font-semibold">{item.name}</h3>
-                              <p className="text-sm text-muted-foreground">Size: {item.size}</p>
-                              <p className="text-lg font-bold text-accent mt-1">${item.price}</p>
+                              <p className="text-sm text-muted-foreground">{item.products.brand}</p>
+                              <h3 className="text-lg font-semibold">{item.products.name}</h3>
+                              {item.size && <p className="text-sm text-muted-foreground">Size: {item.size}</p>}
+                              <p className="text-lg font-bold text-accent mt-1">${item.products.price}</p>
                             </div>
                             
                             <div className="flex items-center gap-4">
                               <div className="flex items-center gap-2">
-                                <Button variant="outline" size="icon" className="h-8 w-8">
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                >
                                   <Minus className="h-4 w-4" />
                                 </Button>
                                 <Input
@@ -85,12 +71,22 @@ const Cart = () => {
                                   className="w-16 h-8 text-center"
                                   readOnly
                                 />
-                                <Button variant="outline" size="icon" className="h-8 w-8">
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                >
                                   <Plus className="h-4 w-4" />
                                 </Button>
                               </div>
                               
-                              <Button variant="outline" size="icon" className="text-destructive hover:text-destructive">
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => removeFromCart(item.id)}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
