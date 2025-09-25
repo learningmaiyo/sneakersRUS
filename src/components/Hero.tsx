@@ -87,6 +87,28 @@ const Hero = () => {
                 </Link>
               </Button>
             </div>
+
+            {/* Stats Section */}
+            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 mt-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">1000+</div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">50+</div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">24/7</div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Support</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-1">Free</div>
+                  <div className="text-white/80 text-sm uppercase tracking-wide">Shipping</div>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Right Visual Column - Let shoes shine here */}
@@ -98,29 +120,6 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Stats Section - Moved to bottom with background */}
-        <div className="absolute bottom-20 left-0 right-0 z-20">
-          <div className="bg-black/30 backdrop-blur-md rounded-2xl mx-4 lg:mx-8 p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">1000+</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">50+</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Support</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">Free</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Shipping</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Scroll Indicator */}
