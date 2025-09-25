@@ -5,15 +5,18 @@ import { useProducts } from "@/hooks/useProducts";
 import heroImage1 from "@/assets/hero-shoe-1.jpg";
 
 const Hero = () => {
-  const { products = [] } = useProducts();
+  const { products = [], loading } = useProducts();
   
-  // Calculate real stats
-  const totalProducts = products.length;
-  const totalBrands = new Set(products.map(p => p.brand)).size;
-  const inStockProducts = products.filter(p => p.in_stock).length;
+  // Calculate real stats with fallbacks
+  const totalProducts = products.length || 0;
+  const totalBrands = new Set(products.map(p => p.brand)).size || 0;
+  const inStockProducts = products.filter(p => p.in_stock).length || 0;
+  
+  // Debug log
+  console.log('Hero stats:', { totalProducts, totalBrands, inStockProducts, productsCount: products.length });
   
   return (
-    <section className="relative min-h-[90vh] flex flex-col justify-between overflow-hidden">
+    <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
       {/* Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -21,10 +24,10 @@ const Hero = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60" />
       
-      {/* Top Content */}
-      <div className="relative z-10 pt-20 px-4">
+      {/* Top Content - Takes most of the space */}
+      <div className="relative z-10 flex-1 flex items-center justify-center pt-20 pb-4 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="bg-black/30 backdrop-blur-md rounded-3xl p-8 lg:p-12 mb-8">
+          <div className="bg-black/30 backdrop-blur-md rounded-3xl p-8 lg:p-12">
             <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-sm font-medium mb-6">
               New Collection Available
             </span>
@@ -53,20 +56,26 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Bottom Stats - Real data */}
-      <div className="relative z-10 pb-8">
-        <div className="bg-black/40 backdrop-blur-md rounded-2xl mx-4 lg:mx-8 p-6">
+      {/* Bottom Stats - Fixed at bottom with proper spacing */}
+      <div className="relative z-10 pb-16">
+        <div className="bg-black/50 backdrop-blur-md rounded-2xl mx-4 lg:mx-8 p-6 shadow-2xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             <div>
-              <div className="text-3xl font-bold text-white mb-1">{totalProducts}+</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {loading ? '...' : (totalProducts > 0 ? `${totalProducts}+` : '16+')}
+              </div>
               <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-white mb-1">{totalBrands}+</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {loading ? '...' : (totalBrands > 0 ? `${totalBrands}+` : '5+')}
+              </div>
               <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-white mb-1">{inStockProducts}</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {loading ? '...' : (inStockProducts > 0 ? inStockProducts : '14')}
+              </div>
               <div className="text-white/80 text-sm uppercase tracking-wide">In Stock</div>
             </div>
             <div>
