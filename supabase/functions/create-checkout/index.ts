@@ -29,10 +29,21 @@ serve(async (req) => {
   try {
     console.log("Starting checkout process");
 
-    // Create Supabase client
+    // Create Supabase client with service role key for server operations
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        },
+        global: {
+          headers: {
+            Authorization: req.headers.get("Authorization") ?? "",
+          },
+        },
+      }
     );
 
     // Get authenticated user
@@ -61,8 +72,13 @@ serve(async (req) => {
       `)
       .eq('user_id', user.id);
 
+    console.log('Cart query result:', { cartItems, cartError });
+
     if (cartError) throw new Error(`Cart error: ${cartError.message}`);
-    if (!cartItems || cartItems.length === 0) throw new Error("Cart is empty");
+    if (!cartItems || cartItems.length === 0) {
+      console.log('Cart items is empty or null:', cartItems);
+      throw new Error("Cart is empty");
+    }
 
     console.log(`Found ${cartItems.length} items in cart`);
 
