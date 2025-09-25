@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { useProducts } from "@/hooks/useProducts";
@@ -61,7 +62,9 @@ const Wishlist = () => {
               <Heart className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold mb-2">Your wishlist is empty</h2>
               <p className="text-muted-foreground mb-6">Start adding items you love to keep track of them</p>
-              <Button>Continue Shopping</Button>
+              <Button asChild>
+                <Link to="/products">Continue Shopping</Link>
+              </Button>
             </div>
           ) : (
             <div className="grid gap-4">
