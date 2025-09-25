@@ -113,7 +113,7 @@ const Hero = () => {
           
           {/* Right Visual Column - Let shoes shine here */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="text-center space-y-4 bg-black/10 backdrop-blur-sm rounded-2xl p-6">
+            <div className="text-center space-y-4 bg-black/10 backdrop-blur-sm rounded-2xl p-6 mt-20">
               <div className="text-white/60 text-sm uppercase tracking-wide">Premium Collection</div>
               <div className="w-16 h-1 bg-white/30 mx-auto rounded-full"></div>
             </div>
