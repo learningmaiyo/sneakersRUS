@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProducts } from "@/hooks/useProducts";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
+import { Link } from "react-router-dom";
 
 const ProductGrid = () => {
   const { products, loading } = useProducts();
@@ -153,8 +154,10 @@ const ProductGrid = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="border-accent/30 hover:border-accent hover:bg-accent/5 hover:text-accent transition-all duration-300 font-medium px-8 py-3">
-            View All Products
+          <Button variant="outline" size="lg" className="border-accent/30 hover:border-accent hover:bg-accent/5 hover:text-accent transition-all duration-300 font-medium px-8 py-3" asChild>
+            <Link to="/products">
+              View All Products
+            </Link>
           </Button>
         </div>
       </div>

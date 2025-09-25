@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage1 from "@/assets/hero-shoe-1.jpg";
 import heroImage2 from "@/assets/hero-shoe-2.jpg";
 import heroImage3 from "@/assets/hero-shoe-3.jpg";
@@ -62,17 +63,23 @@ const Hero = () => {
           <Button 
             size="lg" 
             className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group text-white"
+            asChild
           >
-            Shop Collection
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            <Link to="/products">
+              Shop Collection
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
           </Button>
           <Button 
             size="lg" 
             variant="outline" 
             className="text-lg px-10 py-6 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all duration-500 font-semibold group bg-transparent"
+            asChild
           >
-            New Arrivals
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            <Link to="/products">
+              New Arrivals
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
           </Button>
         </div>
 
