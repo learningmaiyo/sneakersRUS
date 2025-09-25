@@ -106,9 +106,11 @@ export default function Header() {
                   </Button>
                 </Link>
                 <div className="hidden md:flex items-center space-x-2">
-                  <Button variant="ghost" size="sm" className="text-sm hover:bg-accent/10 hover:text-accent transition-all duration-300">
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
+                  <Button variant="ghost" size="sm" className="text-sm hover:bg-accent/10 hover:text-accent transition-all duration-300" asChild>
+                    <Link to="/profile">
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </Link>
                   </Button>
                   <Button 
                     variant="ghost" 
