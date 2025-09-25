@@ -37,88 +37,69 @@ const Hero = () => {
         <Star className="h-10 w-10" />
       </div>
       
-      {/* Content - Option 1: Left-Aligned Layout */}
-      <div className="relative z-10 text-white max-w-7xl mx-auto px-4 animate-fade-in">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
-          {/* Left Content Column */}
-          <div className="text-left lg:text-left space-y-8">
-            <div className="mb-6">
-              <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white/95 text-sm font-medium shadow-lg">
-                New Collection Available
-              </span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight">
-              <span className="block animate-slide-up">Step Into</span>
-              <span className="block text-white animate-slide-up bg-gradient-to-r from-white via-white to-white/90 bg-clip-text" style={{ animationDelay: '0.2s' }}>
-                Premium Style
-              </span>
-            </h1>
-            
-            <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
-              <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                Discover the latest collection of premium sneakers from top brands. 
-                <span className="block mt-2 font-medium text-white">
-                  Elevate your style with authentic, quality footwear.
-                </span>
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-6 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <Button 
-                size="lg" 
-                className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group text-white"
-                asChild
-              >
-                <Link to="/products">
-                  Shop Collection
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-10 py-6 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all duration-500 font-semibold group bg-transparent backdrop-blur-sm"
-                asChild
-              >
-                <Link to="/products">
-                  New Arrivals
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-          
-          {/* Right Visual Column - Let shoes shine here */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="text-center space-y-4 bg-black/10 backdrop-blur-sm rounded-2xl p-6">
-              <div className="text-white/60 text-sm uppercase tracking-wide">Premium Collection</div>
-              <div className="w-16 h-1 bg-white/30 mx-auto rounded-full"></div>
-            </div>
-          </div>
+      {/* Content */}
+      <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-4 animate-fade-in">
+        <div className="mb-6">
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium mb-6">
+            New Collection Available
+          </span>
+        </div>
+        
+        <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-8 leading-none">
+          <span className="block animate-slide-up">Step Into</span>
+          <span className="block text-white animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            Premium Style
+          </span>
+        </h1>
+        
+        <p className="text-xl md:text-2xl lg:text-3xl mb-12 text-white/90 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          Discover the latest collection of premium sneakers from top brands. 
+          <span className="block mt-2 font-medium text-white">
+            Elevate your style with authentic, quality footwear.
+          </span>
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <Button 
+            size="lg" 
+            className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group text-white"
+            asChild
+          >
+            <Link to="/products">
+              Shop Collection
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+          </Button>
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="text-lg px-10 py-6 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all duration-500 font-semibold group bg-transparent"
+            asChild
+          >
+            <Link to="/products">
+              New Arrivals
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+          </Button>
         </div>
 
-        {/* Stats Section - Moved to bottom with background */}
-        <div className="absolute bottom-20 left-0 right-0 z-20">
-          <div className="bg-black/30 backdrop-blur-md rounded-2xl mx-4 lg:mx-8 p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">1000+</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Products</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">50+</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Brands</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Support</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">Free</div>
-                <div className="text-white/80 text-sm uppercase tracking-wide">Shipping</div>
-              </div>
-            </div>
+        {/* Stats Section */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white mb-1">1000+</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Products</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white mb-1">50+</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Brands</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white mb-1">24/7</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Support</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white mb-1">Free</div>
+            <div className="text-white/70 text-sm uppercase tracking-wide">Shipping</div>
           </div>
         </div>
       </div>
