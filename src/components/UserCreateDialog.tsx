@@ -7,6 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { z } from "zod";
+import { useAuth } from "@/hooks/useAuth";
+import { secureEmailSchema, secureNameSchema, strongPasswordSchema } from "@/lib/security";
+
+// Security validation schema - using centralized security utilities
+const userCreateSchema = z.object({
+  email: secureEmailSchema,
+  password: strongPasswordSchema,
+  firstName: secureNameSchema,
+  lastName: secureNameSchema,
+  role: z.enum(["customer", "admin"], { message: "Invalid role selected" })
+});
 
 interface UserCreateDialogProps {
   open: boolean;
@@ -15,6 +27,7 @@ interface UserCreateDialogProps {
 }
 
 export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCreateDialogProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,20 +36,55 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
     role: "customer" as "customer" | "admin"
   });
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setValidationErrors({});
 
     try {
+      // Validate input data
+      const validationResult = userCreateSchema.safeParse(formData);
+      if (!validationResult.success) {
+        const errors: Record<string, string> = {};
+        validationResult.error.issues.forEach((issue) => {
+          if (issue.path.length > 0) {
+            errors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setValidationErrors(errors);
+        toast.error("Please fix the validation errors");
+        return;
+      }
+
+      // Security check: Verify current user is admin before creating admin users
+      if (formData.role === "admin") {
+        const { data: currentUserRole, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user?.id)
+          .single();
+
+        if (roleError || !currentUserRole || !['admin', 'super_admin'].includes(currentUserRole.role)) {
+          toast.error("Unauthorized: Only admins can create admin users");
+          return;
+        }
+
+        // Log admin user creation for security audit
+        console.warn(`SECURITY AUDIT: Admin user creation attempted by ${user?.email} for ${formData.email}`);
+      }
+
       // Create the user account
+      // Use validated data to prevent injection
+      const validatedData = validationResult.data;
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
+        email: validatedData.email,
+        password: validatedData.password,
         user_metadata: {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          display_name: `${formData.firstName} ${formData.lastName}`.trim()
+          first_name: validatedData.firstName,
+          last_name: validatedData.lastName,
+          display_name: `${validatedData.firstName} ${validatedData.lastName}`.trim()
         },
         email_confirm: true
       });
@@ -52,12 +100,12 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
       }
 
       // The profile will be automatically created by the trigger
-      // Now assign the role
+      // Now assign the role using validated data
       const { error: roleError } = await supabase
         .from('user_roles')
         .insert({
           user_id: authData.user.id,
-          role: formData.role
+          role: validatedData.role
         });
 
       if (roleError) {
@@ -65,7 +113,11 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
         return;
       }
 
-      toast.success(`User created successfully with ${formData.role} role`);
+      toast.success(`User created successfully with ${validatedData.role} role`);
+      
+      // Security audit log
+      console.info(`SECURITY AUDIT: User created - Email: ${validatedData.email}, Role: ${validatedData.role}, Created by: ${user?.email}`);
+      
       setFormData({
         email: "",
         password: "",
@@ -73,6 +125,7 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
         lastName: "",
         role: "customer"
       });
+      setValidationErrors({});
       onUserCreated();
       onOpenChange(false);
     } catch (error) {
@@ -100,8 +153,12 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
                 id="firstName"
                 value={formData.firstName}
                 onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                className={validationErrors.firstName ? "border-red-500" : ""}
                 required
               />
+              {validationErrors.firstName && (
+                <p className="text-sm text-red-500 mt-1">{validationErrors.firstName}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
@@ -109,8 +166,12 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
                 id="lastName"
                 value={formData.lastName}
                 onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                className={validationErrors.lastName ? "border-red-500" : ""}
                 required
               />
+              {validationErrors.lastName && (
+                <p className="text-sm text-red-500 mt-1">{validationErrors.lastName}</p>
+              )}
             </div>
           </div>
           
@@ -121,8 +182,12 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className={validationErrors.email ? "border-red-500" : ""}
               required
             />
+            {validationErrors.email && (
+              <p className="text-sm text-red-500 mt-1">{validationErrors.email}</p>
+            )}
           </div>
           
           <div className="space-y-2">
@@ -132,15 +197,22 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
               type="password"
               value={formData.password}
               onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              className={validationErrors.password ? "border-red-500" : ""}
               required
-              minLength={6}
+              minLength={8}
             />
+            {validationErrors.password && (
+              <p className="text-sm text-red-500 mt-1">{validationErrors.password}</p>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Password must be at least 8 characters with uppercase, lowercase, and number
+            </p>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
             <Select value={formData.role} onValueChange={(value: "customer" | "admin") => setFormData(prev => ({ ...prev, role: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className={validationErrors.role ? "border-red-500" : ""}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -148,6 +220,9 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
                 <SelectItem value="admin">Admin User</SelectItem>
               </SelectContent>
             </Select>
+            {validationErrors.role && (
+              <p className="text-sm text-red-500 mt-1">{validationErrors.role}</p>
+            )}
           </div>
           
           <div className="flex justify-end gap-3">

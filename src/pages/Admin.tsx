@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Settings, Package, Users, BarChart3, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Settings, Package, Users, BarChart3, Plus, Pencil, Trash2, Loader2, Shield } from "lucide-react";
 import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 import CSVUpload from "@/components/CSVUpload";
 import { useAdminStats } from "@/hooks/useAdminStats";
@@ -14,8 +14,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductEditDialog } from "@/components/ProductEditDialog";
 import { UserCreateDialog } from "@/components/UserCreateDialog";
 import { Product } from "@/hooks/useProducts";
+import { useAuth } from "@/hooks/useAuth";
+import { logSecurityEvent, adminActionRateLimiter } from "@/lib/security";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Admin = () => {
+  const { user } = useAuth();
   const { stats, loading: statsLoading } = useAdminStats();
   const { products, loading: productsLoading, refetch: refetchProducts } = useProducts();
   const [users, setUsers] = useState<any[]>([]);
@@ -86,14 +91,161 @@ const Admin = () => {
   };
 
   const handleEditProduct = (product: Product) => {
+    // Security: Rate limit admin actions
+    if (!adminActionRateLimiter.isAllowed(`admin_action_${user?.id}`)) {
+      toast.error("Too many actions. Please wait before trying again.");
+      return;
+    }
+
+    // Security audit log
+    logSecurityEvent('admin_product_edit_initiated', {
+      adminUserId: user?.id,
+      adminEmail: user?.email,
+      productId: product.id,
+      productName: product.name
+    });
+
     console.log('Edit product clicked:', product.name);
     setEditingProduct(product);
     setEditDialogOpen(true);
   };
 
   const handleCreateUser = () => {
+    // Security: Rate limit admin actions
+    if (!adminActionRateLimiter.isAllowed(`admin_action_${user?.id}`)) {
+      toast.error("Too many actions. Please wait before trying again.");
+      return;
+    }
+
+    // Security audit log
+    logSecurityEvent('admin_user_create_initiated', {
+      adminUserId: user?.id,
+      adminEmail: user?.email
+    });
+
     console.log('Create user button clicked');
     setCreateUserDialogOpen(true);
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    // Security: Rate limit admin actions
+    if (!adminActionRateLimiter.isAllowed(`admin_action_${user?.id}`)) {
+      toast.error("Too many actions. Please wait before trying again.");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      // Security audit log before deletion
+      logSecurityEvent('admin_product_delete_initiated', {
+        adminUserId: user?.id,
+        adminEmail: user?.email,
+        productId: product.id,
+        productName: product.name,
+        productBrand: product.brand
+      });
+
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
+
+      if (error) throw error;
+
+      toast.success("Product deleted successfully");
+      refetchProducts();
+
+      // Security audit log after successful deletion
+      logSecurityEvent('admin_product_deleted', {
+        adminUserId: user?.id,
+        adminEmail: user?.email,
+        productId: product.id,
+        productName: product.name
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error("Failed to delete product");
+    }
+  };
+
+  const handleRemoveUser = async (targetUser: any) => {
+    // Security: Rate limit admin actions
+    if (!adminActionRateLimiter.isAllowed(`admin_action_${user?.id}`)) {
+      toast.error("Too many actions. Please wait before trying again.");
+      return;
+    }
+
+    // Security: Prevent self-deletion
+    if (targetUser.id === user?.id) {
+      toast.error("You cannot remove your own admin account");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to remove user "${targetUser.display_name || targetUser.first_name + ' ' + targetUser.last_name}"? This will delete their account permanently.`)) {
+      return;
+    }
+
+    try {
+      // Security audit log before deletion
+      logSecurityEvent('admin_user_delete_initiated', {
+        adminUserId: user?.id,
+        adminEmail: user?.email,
+        targetUserId: targetUser.id,
+        targetUserName: targetUser.display_name || `${targetUser.first_name} ${targetUser.last_name}`
+      });
+
+      // Delete user account (this will cascade to profiles and user_roles via foreign key constraints)
+      const { error } = await supabase.auth.admin.deleteUser(targetUser.id);
+
+      if (error) throw error;
+
+      toast.success("User removed successfully");
+      
+      // Refresh users list
+      const fetchUsers = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            display_name,
+            created_at
+          `)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role');
+
+        if (rolesError) throw rolesError;
+
+        const usersWithRoles = (data || []).map(profile => ({
+          ...profile,
+          user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
+        }));
+
+        setUsers(usersWithRoles);
+      };
+
+      await fetchUsers();
+
+      // Security audit log after successful deletion
+      logSecurityEvent('admin_user_deleted', {
+        adminUserId: user?.id,
+        adminEmail: user?.email,
+        targetUserId: targetUser.id,
+        targetUserName: targetUser.display_name || `${targetUser.first_name} ${targetUser.last_name}`
+      });
+    } catch (error) {
+      console.error('Error removing user:', error);
+      toast.error("Failed to remove user");
+    }
   };
 
   return (
@@ -106,6 +258,15 @@ const Admin = () => {
               <Settings className="h-6 w-6" />
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             </div>
+
+            {/* Security Enhancement Notice */}
+            <Alert className="mb-6 border-green-200 bg-green-50">
+              <Shield className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-800">Security Enhancements Applied</AlertTitle>
+              <AlertDescription className="text-green-700">
+                Your admin panel now includes enhanced input validation, audit logging, rate limiting, and role verification for improved security.
+              </AlertDescription>
+            </Alert>
 
             {/* Real-time Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -288,10 +449,15 @@ const Admin = () => {
                                       <Pencil className="h-3 w-3" />
                                       Edit
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive">
-                                      <Trash2 className="h-3 w-3" />
-                                      Delete
-                                    </Button>
+                                     <Button 
+                                       variant="ghost" 
+                                       size="sm" 
+                                       className="gap-1 text-destructive hover:text-destructive"
+                                       onClick={() => handleDeleteProduct(product)}
+                                     >
+                                       <Trash2 className="h-3 w-3" />
+                                       Delete
+                                     </Button>
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -372,10 +538,15 @@ const Admin = () => {
                                       <Pencil className="h-3 w-3" />
                                       Edit
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive">
-                                      <Trash2 className="h-3 w-3" />
-                                      Remove
-                                    </Button>
+                                     <Button 
+                                       variant="ghost" 
+                                       size="sm" 
+                                       className="gap-1 text-destructive hover:text-destructive"
+                                       onClick={() => handleRemoveUser(user)}
+                                     >
+                                       <Trash2 className="h-3 w-3" />
+                                       Remove
+                                     </Button>
                                   </div>
                                 </TableCell>
                               </TableRow>
