@@ -3,6 +3,7 @@ import { ShoppingCart, Heart, Search, Menu, X, User, LogOut } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -11,6 +12,7 @@ export default function Header() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdminAuth();
   const { getTotalItems } = useCart();
   const { toast } = useToast();
 
@@ -61,7 +63,7 @@ export default function Header() {
             >
               Products
             </Link>
-            {user && (
+            {user && isAdmin && (
               <Link 
                 to="/admin" 
                 className={`relative hover:text-accent transition-all duration-300 font-medium ${
@@ -150,7 +152,7 @@ export default function Header() {
               <Link to="/products" className="block px-4 py-3 hover:bg-accent/10 rounded-lg transition-all duration-300 font-medium">
                 Products
               </Link>
-              {user && (
+              {user && isAdmin && (
                 <Link to="/admin" className="block px-4 py-3 hover:bg-accent/10 rounded-lg transition-all duration-300 font-medium">
                   Admin
                 </Link>
