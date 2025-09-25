@@ -12,6 +12,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductEditDialog } from "@/components/ProductEditDialog";
+import { UserCreateDialog } from "@/components/UserCreateDialog";
 import { Product } from "@/hooks/useProducts";
 
 const Admin = () => {
@@ -21,6 +22,7 @@ const Admin = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
 
   // Fetch users for user management
   useEffect(() => {
@@ -34,13 +36,26 @@ const Admin = () => {
             first_name,
             last_name,
             display_name,
-            created_at,
-            user_roles (role)
+            created_at
           `)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setUsers(data || []);
+
+        // Fetch roles separately
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role');
+
+        if (rolesError) throw rolesError;
+
+        // Combine the data
+        const usersWithRoles = (data || []).map(profile => ({
+          ...profile,
+          user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
+        }));
+
+        setUsers(usersWithRoles);
       } catch (err) {
         console.error('Error fetching users:', err);
       } finally {
@@ -302,7 +317,7 @@ const Admin = () => {
                       <p className="text-muted-foreground">
                         {usersLoading ? 'Loading users...' : `${users.length} registered users`}
                       </p>
-                      <Button className="gap-2">
+                      <Button className="gap-2" onClick={() => setCreateUserDialogOpen(true)}>
                         <Plus className="h-4 w-4" />
                         Add New User
                       </Button>
@@ -404,6 +419,51 @@ const Admin = () => {
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}
           onProductUpdated={refetchProducts}
+        />
+        
+        <UserCreateDialog
+          open={createUserDialogOpen}
+          onOpenChange={setCreateUserDialogOpen}
+          onUserCreated={() => {
+            // Refetch users after creating a new one
+            const fetchUsers = async () => {
+              try {
+                setUsersLoading(true);
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select(`
+                    id,
+                    first_name,
+                    last_name,
+                    display_name,
+                    created_at
+                  `)
+                  .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Fetch roles separately
+                const { data: rolesData, error: rolesError } = await supabase
+                  .from('user_roles')
+                  .select('user_id, role');
+
+                if (rolesError) throw rolesError;
+
+                // Combine the data
+                const usersWithRoles = (data || []).map(profile => ({
+                  ...profile,
+                  user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
+                }));
+
+                setUsers(usersWithRoles);
+              } catch (err) {
+                console.error('Error fetching users:', err);
+              } finally {
+                setUsersLoading(false);
+              }
+            };
+            fetchUsers();
+          }}
         />
       </div>
     </AdminProtectedRoute>
