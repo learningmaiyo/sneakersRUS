@@ -3,16 +3,71 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const subtotal = getTotalPrice();
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + tax;
+
+  const handleCheckout = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to proceed with checkout.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      toast({
+        title: "Empty Cart",
+        description: "Please add items to your cart before checking out.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCheckingOut(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in new tab
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Checkout Error",
+        description: error.message || "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -124,8 +179,19 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full mb-4">
-                      Proceed to Checkout
+                    <Button 
+                      onClick={handleCheckout}
+                      disabled={isCheckingOut || cartItems.length === 0}
+                      className="w-full mb-4"
+                    >
+                      {isCheckingOut ? (
+                        "Processing..."
+                      ) : (
+                        <>
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Proceed to Checkout
+                        </>
+                      )}
                     </Button>
 
                     <Button variant="outline" className="w-full" asChild>
