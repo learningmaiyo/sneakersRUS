@@ -28,6 +28,7 @@ const Admin = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        console.log('Fetching users...');
         setUsersLoading(true);
         const { data, error } = await supabase
           .from('profiles')
@@ -40,6 +41,7 @@ const Admin = () => {
           `)
           .order('created_at', { ascending: false });
 
+        console.log('Profiles data:', data, 'Error:', error);
         if (error) throw error;
 
         // Fetch roles separately
@@ -47,6 +49,7 @@ const Admin = () => {
           .from('user_roles')
           .select('user_id, role');
 
+        console.log('Roles data:', rolesData, 'Error:', rolesError);
         if (rolesError) throw rolesError;
 
         // Combine the data
@@ -55,6 +58,7 @@ const Admin = () => {
           user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
         }));
 
+        console.log('Combined users with roles:', usersWithRoles);
         setUsers(usersWithRoles);
       } catch (err) {
         console.error('Error fetching users:', err);
@@ -82,8 +86,14 @@ const Admin = () => {
   };
 
   const handleEditProduct = (product: Product) => {
+    console.log('Edit product clicked:', product.name);
     setEditingProduct(product);
     setEditDialogOpen(true);
+  };
+
+  const handleCreateUser = () => {
+    console.log('Create user button clicked');
+    setCreateUserDialogOpen(true);
   };
 
   return (
@@ -317,7 +327,7 @@ const Admin = () => {
                       <p className="text-muted-foreground">
                         {usersLoading ? 'Loading users...' : `${users.length} registered users`}
                       </p>
-                      <Button className="gap-2" onClick={() => setCreateUserDialogOpen(true)}>
+                      <Button className="gap-2" onClick={handleCreateUser}>
                         <Plus className="h-4 w-4" />
                         Add New User
                       </Button>
