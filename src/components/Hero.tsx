@@ -51,7 +51,7 @@ const Hero = () => {
         <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <Button 
             size="lg" 
-            className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group"
+            className="text-lg px-10 py-6 bg-accent hover:bg-accent-dark border-0 shadow-card hover:shadow-hover transition-all duration-500 font-semibold group text-white"
           >
             Shop Collection
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -59,7 +59,7 @@ const Hero = () => {
           <Button 
             size="lg" 
             variant="outline" 
-            className="text-lg px-10 py-6 glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all duration-500 font-semibold group"
+            className="text-lg px-10 py-6 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all duration-500 font-semibold group bg-transparent"
           >
             New Arrivals
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
