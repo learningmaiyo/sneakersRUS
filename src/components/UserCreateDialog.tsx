@@ -75,41 +75,36 @@ export function UserCreateDialog({ open, onOpenChange, onUserCreated }: UserCrea
         console.warn(`SECURITY AUDIT: Admin user creation attempted by ${user?.email} for ${formData.email}`);
       }
 
-      // Create the user account
+      // Create the user account via Edge Function
       // Use validated data to prevent injection
       const validatedData = validationResult.data;
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: validatedData.email,
-        password: validatedData.password,
-        user_metadata: {
-          first_name: validatedData.firstName,
-          last_name: validatedData.lastName,
-          display_name: `${validatedData.firstName} ${validatedData.lastName}`.trim()
+      
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        toast.error("Authentication required");
+        return;
+      }
+
+      const response = await fetch(`https://nncfvsjppvsodpqtcopc.supabase.co/functions/v1/admin-create-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.session.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uY2Z2c2pwcHZzb2RwcXRjb3BjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NzE5OTEsImV4cCI6MjA3NDM0Nzk5MX0.RLKGrp7zLvt_9DAHhkW5WT9TnAmI_QP7Bhe9Np83rFw'
         },
-        email_confirm: true
+        body: JSON.stringify({
+          email: validatedData.email,
+          password: validatedData.password,
+          firstName: validatedData.firstName,
+          lastName: validatedData.lastName,
+          role: validatedData.role
+        })
       });
 
-      if (authError) {
-        toast.error(`Failed to create user: ${authError.message}`);
-        return;
-      }
+      const result = await response.json();
 
-      if (!authData.user) {
-        toast.error("User creation failed - no user data returned");
-        return;
-      }
-
-      // The profile will be automatically created by the trigger
-      // Now assign the role using validated data
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
-          role: validatedData.role
-        });
-
-      if (roleError) {
-        toast.error(`Failed to assign role: ${roleError.message}`);
+      if (!result.success) {
+        toast.error(`Failed to create user: ${result.error}`);
         return;
       }
 

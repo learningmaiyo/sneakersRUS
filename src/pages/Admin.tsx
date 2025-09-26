@@ -197,10 +197,30 @@ const Admin = () => {
         targetUserName: targetUser.display_name || `${targetUser.first_name} ${targetUser.last_name}`
       });
 
-      // Delete user account (this will cascade to profiles and user_roles via foreign key constraints)
-      const { error } = await supabase.auth.admin.deleteUser(targetUser.id);
+      // Delete user account via Edge Function
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        toast.error("Authentication required");
+        return;
+      }
 
-      if (error) throw error;
+      const response = await fetch(`https://nncfvsjppvsodpqtcopc.supabase.co/functions/v1/admin-delete-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.session.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uY2Z2c2pwcHZzb2RwcXRjb3BjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NzE5OTEsImV4cCI6MjA3NDM0Nzk5MX0.RLKGrp7zLvt_9DAHhkW5WT9TnAmI_QP7Bhe9Np83rFw'
+        },
+        body: JSON.stringify({
+          userId: targetUser.id
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast.success("User removed successfully");
       
