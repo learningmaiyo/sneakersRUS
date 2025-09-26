@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductEditDialog } from "@/components/ProductEditDialog";
 import { UserCreateDialog } from "@/components/UserCreateDialog";
+import { UserEditDialog } from "@/components/UserEditDialog";
 import { Product } from "@/hooks/useProducts";
 import { useAuth } from "@/hooks/useAuth";
 import { logSecurityEvent, adminActionRateLimiter } from "@/lib/security";
@@ -28,6 +29,8 @@ const Admin = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
 
   // Fetch users for user management
   useEffect(() => {
@@ -125,6 +128,24 @@ const Admin = () => {
 
     console.log('Create user button clicked');
     setCreateUserDialogOpen(true);
+  };
+
+  const handleEditUser = (targetUser: any) => {
+    // Security: Rate limit admin actions
+    if (!adminActionRateLimiter.isAllowed(`admin_action_${user?.id}`)) {
+      toast.error("Too many actions. Please wait before trying again.");
+      return;
+    }
+
+    // Security audit log
+    logSecurityEvent('admin_user_edit_initiated', {
+      adminUserId: user?.id,
+      adminEmail: user?.email,
+      targetUserId: targetUser.id
+    });
+
+    setEditingUser(targetUser);
+    setEditUserDialogOpen(true);
   };
 
   const handleDeleteProduct = async (product: Product) => {
@@ -554,7 +575,12 @@ const Admin = () => {
                                 <TableCell>{formatDate(user.created_at)}</TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex items-center gap-2 justify-end">
-                                    <Button variant="ghost" size="sm" className="gap-1">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="gap-1"
+                                      onClick={() => handleEditUser(user)}
+                                    >
                                       <Pencil className="h-3 w-3" />
                                       Edit
                                     </Button>
@@ -627,6 +653,52 @@ const Admin = () => {
           onOpenChange={setCreateUserDialogOpen}
           onUserCreated={() => {
             // Refetch users after creating a new one
+            const fetchUsers = async () => {
+              try {
+                setUsersLoading(true);
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select(`
+                    id,
+                    first_name,
+                    last_name,
+                    display_name,
+                    created_at
+                  `)
+                  .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Fetch roles separately
+                const { data: rolesData, error: rolesError } = await supabase
+                  .from('user_roles')
+                  .select('user_id, role');
+
+                if (rolesError) throw rolesError;
+
+                // Combine the data
+                const usersWithRoles = (data || []).map(profile => ({
+                  ...profile,
+                  user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
+                }));
+
+                setUsers(usersWithRoles);
+              } catch (err) {
+                console.error('Error fetching users:', err);
+              } finally {
+                setUsersLoading(false);
+              }
+            };
+            fetchUsers();
+          }}
+        />
+        
+        <UserEditDialog
+          open={editUserDialogOpen}
+          onOpenChange={setEditUserDialogOpen}
+          user={editingUser}
+          onUserUpdated={() => {
+            // Refetch users after update
             const fetchUsers = async () => {
               try {
                 setUsersLoading(true);

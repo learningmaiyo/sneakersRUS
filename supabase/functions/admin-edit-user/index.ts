@@ -56,78 +56,68 @@ serve(async (req) => {
       throw new Error('Insufficient permissions')
     }
 
-    const { email, password, firstName, lastName, role } = await req.json()
+    const { userId, firstName, lastName, role } = await req.json()
 
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!userId || !firstName || !lastName || !role) {
       throw new Error('Missing required fields')
     }
 
-    // Security check: Only admins can create admin users
-    if (role === 'admin' && userRole.role !== 'super_admin') {
-      throw new Error('Only super admins can create admin users')
+    // Prevent self-role modification to avoid lockout
+    if (userId === user.id && role !== userRole.role) {
+      throw new Error('Cannot modify your own role')
     }
 
-    // Check if user already exists first
-    const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers()
-    const userExists = existingUser.users.find(u => u.email === email)
-    
-    let newUser
-    
-    if (userExists) {
-      // User exists, use existing user
-      newUser = { user: userExists }
-      console.log('User already exists:', email)
-    } else {
-      // Create new user
-      const { data: createdUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        user_metadata: {
-          first_name: firstName,
-          last_name: lastName,
-          display_name: `${firstName} ${lastName}`.trim()
-        },
-        email_confirm: true
+    // Security check: Only super admins can modify admin users
+    const { data: targetRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single()
+
+    if (targetRole?.role === 'admin' && userRole.role !== 'super_admin') {
+      throw new Error('Only super admins can modify admin users')
+    }
+
+    // Update profile
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        first_name: firstName,
+        last_name: lastName,
+        display_name: `${firstName} ${lastName}`.trim()
       })
+      .eq('id', userId)
 
-      if (createError) {
-        throw createError
-      }
-
-      if (!createdUser.user) {
-        throw new Error('Failed to create user')
-      }
-      
-      newUser = createdUser
+    if (profileError) {
+      throw profileError
     }
 
-    // Assign role using UPSERT to handle duplicates
-    const { error: roleAssignError } = await supabaseAdmin
+    // Update role using upsert
+    const { error: roleUpdateError } = await supabaseAdmin
       .from('user_roles')
       .upsert({
-        user_id: newUser.user.id,
+        user_id: userId,
         role: role
       }, {
         onConflict: 'user_id,role'
       })
 
-    if (roleAssignError) {
-      // Only delete if we created a new user (not if user already existed)
-      if (!userExists) {
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id)
-      }
-      throw roleAssignError
+    if (roleUpdateError) {
+      throw roleUpdateError
     }
 
     // Log security event
     await supabaseAdmin.from('security_audit_log').insert({
-      event_type: 'admin_user_created',
+      event_type: 'admin_user_edited',
       user_id: user.id,
       user_email: user.email,
       event_details: {
-        created_user_id: newUser.user.id,
-        created_user_email: email,
-        assigned_role: role,
+        edited_user_id: userId,
+        updated_fields: {
+          first_name: firstName,
+          last_name: lastName,
+          role: role
+        },
         admin_user_id: user.id,
         admin_email: user.email
       }
@@ -135,12 +125,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        user: {
-          id: newUser.user.id,
-          email: newUser.user.email,
-          role: role
-        }
+        success: true,
+        message: 'User updated successfully'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -149,7 +135,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error creating user:', error)
+    console.error('Error editing user:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     return new Response(
       JSON.stringify({ 
