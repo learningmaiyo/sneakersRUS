@@ -4,18 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from "lucide-react";
-import { useCart } from "@/hooks/useDjangoCart";
-import { useAuth } from "@/hooks/useDjangoAuth";
-import { apiClient } from "@/lib/api";
+import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { convertZarToUsd, formatCurrency } from "@/lib/currency";
 
 const Cart = () => {
-  const { cartItems, totals, updateQuantity, removeFromCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, getRawCartItems } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const subtotal = getTotalPrice();
+  const tax = subtotal * 0.08; // 8% tax
+  const total = subtotal + tax;
+  
+  // Currency conversion
+  const totalUSD = convertZarToUsd(total);
 
   const handleCheckout = async () => {
     if (!user) {
@@ -27,7 +35,8 @@ const Cart = () => {
       return;
     }
 
-    if (!cartItems || cartItems.length === 0) {
+    const rawCartItems = getRawCartItems();
+    if (rawCartItems.length === 0) {
       toast({
         title: "Empty Cart",
         description: "Please add items to your cart before checking out.",
@@ -39,11 +48,17 @@ const Cart = () => {
     setIsCheckingOut(true);
 
     try {
-      const { url } = await apiClient.createCheckoutSession();
-      
-      if (url) {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
         // Open Stripe checkout in new tab
-        window.open(url, '_blank');
+        window.open(data.url, '_blank');
       } else {
         throw new Error('No checkout URL received');
       }
@@ -67,12 +82,10 @@ const Cart = () => {
           <div className="flex items-center gap-2 mb-8">
             <ShoppingCart className="h-6 w-6" />
             <h1 className="text-3xl font-bold">Shopping Cart</h1>
-            <span className="text-muted-foreground">
-              ({totals?.total_items || 0} items)
-            </span>
+            <span className="text-muted-foreground">({getTotalItems()} items)</span>
           </div>
 
-          {!cartItems || cartItems.length === 0 ? (
+          {cartItems.length === 0 ? (
             <div className="text-center py-16">
               <ShoppingCart className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
@@ -86,13 +99,13 @@ const Cart = () => {
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 {cartItems.map((item) => (
-                  <Card key={`${item.product.id}-${item.size || 'no-size'}`} className="overflow-hidden">
+                  <Card key={`${item.product_id}-${item.size || 'no-size'}`} className="overflow-hidden">
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
                         <div className="w-full sm:w-32 h-32">
                           <img
-                            src={item.product.image_url}
-                            alt={item.product.name}
+                            src={item.products.image_url}
+                            alt={item.products.name}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -100,10 +113,10 @@ const Cart = () => {
                         <div className="flex-1 p-6">
                           <div className="flex flex-col sm:flex-row justify-between gap-4">
                             <div>
-                              <p className="text-sm text-muted-foreground">{item.product.brand}</p>
-                              <h3 className="text-lg font-semibold">{item.product.name}</h3>
+                              <p className="text-sm text-muted-foreground">{item.products.brand}</p>
+                              <h3 className="text-lg font-semibold">{item.products.name}</h3>
                               {item.size && <p className="text-sm text-muted-foreground">Size: {item.size}</p>}
-                              <p className="text-lg font-bold text-accent mt-1">R{item.product.price}</p>
+                              <p className="text-lg font-bold text-accent mt-1">R{item.products.price}</p>
                             </div>
                             
                             <div className="flex items-center gap-4">
@@ -112,12 +125,12 @@ const Cart = () => {
                                   variant="outline" 
                                   size="icon" 
                                   className="h-8 w-8"
-                                  onClick={() => updateQuantity(item.product.id, item.size, item.total_quantity - 1)}
+                                  onClick={() => updateQuantity(item.product_id, item.size, item.quantity - 1)}
                                 >
                                   <Minus className="h-4 w-4" />
                                 </Button>
                                 <Input
-                                  value={item.total_quantity}
+                                  value={item.quantity}
                                   className="w-16 h-8 text-center"
                                   readOnly
                                 />
@@ -125,7 +138,7 @@ const Cart = () => {
                                   variant="outline" 
                                   size="icon" 
                                   className="h-8 w-8"
-                                  onClick={() => updateQuantity(item.product.id, item.size, item.total_quantity + 1)}
+                                  onClick={() => updateQuantity(item.product_id, item.size, item.quantity + 1)}
                                 >
                                   <Plus className="h-4 w-4" />
                                 </Button>
@@ -135,7 +148,7 @@ const Cart = () => {
                                 variant="outline" 
                                 size="icon" 
                                 className="text-destructive hover:text-destructive"
-                                onClick={() => removeFromCart(item.product.id, item.size)}
+                                onClick={() => removeFromCart(item.product_id, item.size)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -154,35 +167,33 @@ const Cart = () => {
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
                     
-                    {totals && (
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between">
-                          <span>Subtotal</span>
-                          <span>R{parseFloat(totals.subtotal).toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Tax</span>
-                          <span>R{parseFloat(totals.tax).toFixed(2)}</span>
-                        </div>
-                        <div className="border-t pt-2">
-                          <div className="flex justify-between font-semibold text-lg">
-                            <span>Total (ZAR)</span>
-                            <span>R{parseFloat(totals.total).toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                            <span>Total (USD)</span>
-                            <span>${totals.total_usd.toFixed(2)}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            *Payment will be processed in USD
-                          </p>
-                        </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>R{subtotal.toFixed(2)}</span>
                       </div>
-                    )}
+                      <div className="flex justify-between">
+                        <span>Tax</span>
+                        <span>R{tax.toFixed(2)}</span>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between font-semibold text-lg">
+                          <span>Total (ZAR)</span>
+                          <span>R{total.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                          <span>Total (USD)</span>
+                          <span>{formatCurrency(totalUSD, 'USD')}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          *Payment will be processed in USD
+                        </p>
+                      </div>
+                    </div>
 
                     <Button 
                       onClick={handleCheckout}
-                      disabled={isCheckingOut || !cartItems || cartItems.length === 0}
+                      disabled={isCheckingOut || cartItems.length === 0}
                       className="w-full mb-4"
                     >
                       {isCheckingOut ? (
